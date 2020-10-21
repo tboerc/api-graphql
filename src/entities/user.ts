@@ -12,10 +12,14 @@ export class User {
   @Column({length: 75})
   email: string;
 
+  @Column()
+  password: string;
+
   @Field()
   @Column({length: 75})
   name: string;
 
+  @Field()
   @Column()
-  password: string;
+  profile: string;
 }

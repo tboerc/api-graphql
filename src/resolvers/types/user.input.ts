@@ -1,9 +1,11 @@
-import {IsEmail, MaxLength, MinLength} from 'class-validator';
 import {Field, InputType} from 'type-graphql';
+import {GraphQLUpload, FileUpload} from 'graphql-upload';
+import {IsEmail, MaxLength, MinLength} from 'class-validator';
+
 import {User} from '../../entities/user';
 
 @InputType()
-export class AddUserInput implements Partial<User> {
+export class AddUserInput implements Omit<Partial<User>, 'profile'> {
   @Field()
   @IsEmail()
   @MaxLength(75)
@@ -16,4 +18,7 @@ export class AddUserInput implements Partial<User> {
   @Field()
   @MaxLength(75)
   name: string;
+
+  @Field((type) => GraphQLUpload)
+  profile: Promise<FileUpload>;
 }

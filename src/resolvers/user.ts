@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import {Repository} from 'typeorm';
-import {Resolver, Query, Arg, Mutation} from 'type-graphql';
 import {InjectRepository} from 'typeorm-typedi-extensions';
+import {Resolver, Query, Arg, Mutation} from 'type-graphql';
 
+import {upload} from '../helpers';
 import {User} from '../entities/user';
 import {AddUserInput} from './types/user.input';
 
@@ -26,9 +27,15 @@ export class UserResolver {
   @Mutation((returns) => User)
   async addUser(@Arg('data') data: AddUserInput) {
     const hash = await bcrypt.hash(data.password, SALT_ROUNDS);
+    const url = await upload.single(data.profile, 'images/profile');
 
-    const user = this.userRepository.create({...data, password: hash});
+    const user = this.userRepository.create({
+      profile: url,
+      name: data.name,
+      email: data.email,
+      password: hash,
+    });
 
-    return await this.userRepository.save(user);
+    return this.userRepository.save(user);
   }
 }
