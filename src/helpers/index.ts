@@ -5,7 +5,9 @@ import {createWriteStream} from 'fs';
 import {FileUpload} from 'graphql-upload';
 import {ApolloError} from 'apollo-server-express';
 
-export const ROOT = path.join(__dirname, '..', '..');
+import * as Auth from './jwt';
+
+const ROOT = path.join(__dirname, '..', '..');
 
 export const upload = {
   single: async (file: Promise<FileUpload>, destination: string): Promise<string> => {
@@ -50,3 +52,5 @@ export const upload = {
     return Promise.all(pipedStreams);
   },
 };
+
+export {Auth};
