@@ -1,9 +1,11 @@
 import 'reflect-metadata';
 
 import dotenv from 'dotenv';
+import express from 'express';
 import {Container} from 'typedi';
 import {buildSchema} from 'type-graphql';
-import {ApolloServer} from 'apollo-server';
+import {ApolloServer} from 'apollo-server-express';
+import {graphqlUploadExpress} from 'graphql-upload';
 import {createConnection, useContainer} from 'typeorm';
 
 const bootstrap = async () => {
@@ -18,10 +20,13 @@ const bootstrap = async () => {
       container: Container,
     });
 
-    const server = new ApolloServer({schema});
+    const app = express();
+    app.use(graphqlUploadExpress());
 
-    const {url} = await server.listen({port: 8080});
-    console.log('Server running at', url);
+    const server = new ApolloServer({schema, uploads: false});
+    server.applyMiddleware({app, path: '/'});
+
+    app.listen({port: 8080}, () => console.log('Server running...'));
   } catch (e) {
     console.log('Server error:', e.message);
   }
