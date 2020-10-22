@@ -22,3 +22,15 @@ export class AddUserInput implements Omit<Partial<User>, 'profile'> {
   @Field((type) => GraphQLUpload)
   profile: Promise<FileUpload>;
 }
+
+@InputType()
+export class LoginUserInput implements Partial<User> {
+  @Field()
+  @IsEmail()
+  @MaxLength(75)
+  email: string;
+
+  @Field()
+  @MinLength(6)
+  password: string;
+}

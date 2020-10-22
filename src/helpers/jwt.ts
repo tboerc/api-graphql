@@ -1,16 +1,16 @@
 import jwt from 'jsonwebtoken';
 
 const options = {expiresIn: '30 minutes'};
-const privateKey = process.env.JWT_PRIVATE_KEY ?? '';
 
 const verify = (token: string) => {
-  return jwt.verify(token, privateKey);
+  return jwt.verify(token, process.env.JWT_PRIVATE_KEY ?? '');
 };
 
 const Auth = {
   generate: (payload: string | object) => {
-    return jwt.sign(payload, privateKey, options);
+    return jwt.sign(payload, process.env.JWT_PRIVATE_KEY ?? '', options);
   },
+
   mapContext: ({req}: any) => {
     let user: any;
     const token = req.headers.authorization;
@@ -24,6 +24,7 @@ const Auth = {
 
     return {user};
   },
+
   authChecker: ({context}: any) => {
     const user = context.user;
 

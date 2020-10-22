@@ -9,7 +9,7 @@ export class User {
   readonly id: number;
 
   @Field()
-  @Column({length: 75})
+  @Column({length: 75, unique: true})
   email: string;
 
   @Column()
@@ -22,4 +22,7 @@ export class User {
   @Field()
   @Column()
   profile: string;
+
+  @Field()
+  token: string;
 }
