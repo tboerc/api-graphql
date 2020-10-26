@@ -2,11 +2,10 @@ import 'reflect-metadata';
 
 import dotenv from 'dotenv';
 import express from 'express';
-import {Container} from 'typedi';
 import {buildSchema} from 'type-graphql';
+import {createConnection} from 'typeorm';
 import {ApolloServer} from 'apollo-server-express';
 import {graphqlUploadExpress} from 'graphql-upload';
-import {createConnection, useContainer} from 'typeorm';
 
 import {Auth} from './helpers';
 
@@ -14,11 +13,9 @@ const bootstrap = async () => {
   dotenv.config();
 
   try {
-    useContainer(Container);
     await createConnection();
 
     const schema = await buildSchema({
-      container: Container,
       authChecker: Auth.authChecker,
       resolvers: [__dirname + '/resolvers/*.ts'],
     });

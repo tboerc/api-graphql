@@ -1,7 +1,5 @@
-import bcrypt from 'bcrypt';
-import {Repository} from 'typeorm';
+import bcrypt from 'bcryptjs';
 import {ApolloError} from 'apollo-server-express';
-import {InjectRepository} from 'typeorm-typedi-extensions';
 import {Resolver, Query, Arg, Mutation, Authorized} from 'type-graphql';
 
 import {User} from '../entities/user';
@@ -12,18 +10,15 @@ const SALT_ROUNDS = 10;
 
 @Resolver(User)
 export class UserResolver {
-  @InjectRepository(User)
-  private repository: Repository<User>;
-
   @Query((returns) => User)
   user(@Arg('userId') userId: number) {
-    return this.repository.findOne(userId);
+    return User.findOne(userId);
   }
 
   @Authorized()
   @Query((returns) => [User])
   users() {
-    return this.repository.find();
+    return User.find();
   }
 
   @Mutation((returns) => User)
@@ -31,21 +26,21 @@ export class UserResolver {
     const hash = await bcrypt.hash(data.password, SALT_ROUNDS);
     const url = await upload.single(data.profile, 'images/profile');
 
-    const user = this.repository.create({
-      profile: url,
-      name: data.name,
-      email: data.email,
-      password: hash,
-    });
+    const user = new User();
 
-    const saved = await this.repository.save(user);
+    user.email = data.email;
+    user.password = hash;
+    user.name = data.name;
+    user.profile = url ?? '';
 
-    return {...user, token: Auth.generate({id: saved.id})};
+    await user.save();
+
+    return {...user, token: Auth.generate({id: user.id})};
   }
 
   @Mutation((returns) => User)
   async loginUser(@Arg('data') data: LoginUserInput) {
-    const user = await this.repository.findOne({where: {email: data.email}});
+    const user = await User.findOne({where: {email: data.email}});
     if (!user) throw new ApolloError(getMessage('user.loginUser.noEmailMatch'));
 
     const match = await bcrypt.compare(data.password, user.password);
